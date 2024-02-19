@@ -29,6 +29,7 @@ build-job:
     - apt-get install -y zip wget
     - ./local.sh build
   artifacts:
+    name: "local"
     paths:
       - local.zip
     expire_in: 3 days
