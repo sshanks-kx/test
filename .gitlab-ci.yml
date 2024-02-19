@@ -28,6 +28,10 @@ build-job:
     - echo "build-job"
     - apt-get install -y zip wget
     - ./local.sh build
+  artifacts:
+    paths:
+      - local.zip
+    expire_in: 3 days
 
 deploy-job:
   image: "registry.gitlab.com/kxdev/documentation/framework/mkdocs-build:0.3.8"
@@ -38,5 +42,9 @@ deploy-job:
     - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
       when: never
     - when: always
+  needs:
+    - job: build-job
+      artifacts: true
   script:
     - echo "deploy-job"
+    - ls -al
