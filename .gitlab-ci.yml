@@ -1,0 +1,11 @@
+default:
+    tags:
+      - k8s-aws-tools
+
+build-job:
+  stage: build
+  variables:
+    CI_DEBUG_TRACE: "true"  
+  image: "dev-registry.kxi-dev.kx.com/devops/kxi-aws-infra-dev-ci-image:0.0.5"
+  script:
+    - echo "foo"
