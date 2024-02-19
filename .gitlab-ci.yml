@@ -2,11 +2,7 @@ default:
     tags:
       - k8s-aws-tools
     interruptible: true
-    
-workflow:
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    
+
 stages:
   - build
   - deploy
@@ -15,7 +11,7 @@ merge-job:
   image: "registry.gitlab.com/kxdev/documentation/framework/mkdocs-build:0.3.8"
   stage: build
   rules:
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"'
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
   script:
     - echo "merge-job"
     
@@ -23,7 +19,9 @@ build-job:
   image: "registry.gitlab.com/kxdev/documentation/framework/mkdocs-build:0.3.8"
   stage: build
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+      when: never
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
       when: never
     - when: always
   script:
@@ -33,7 +31,9 @@ deploy-job:
   image: "registry.gitlab.com/kxdev/documentation/framework/mkdocs-build:0.3.8"
   stage: deploy
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+      when: never
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
       when: never
     - when: always
   script:
