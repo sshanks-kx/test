@@ -10,4 +10,5 @@ build-job:
   image: "registry.gitlab.com/kxdev/documentation/framework/mkdocs-build:0.3.8"
   script:
     - echo "foo"
+    - ls -al
     - mkdocs -V
