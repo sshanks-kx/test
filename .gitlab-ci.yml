@@ -2,7 +2,11 @@ default:
     tags:
       - k8s-aws-tools
     interruptible: true
-
+    
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    
 stages:
   - build
   - deploy
