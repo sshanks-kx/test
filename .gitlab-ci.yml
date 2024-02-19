@@ -48,3 +48,5 @@ deploy-job:
   script:
     - echo "deploy-job"
     - ls -al
+  variables:
+    GIT_STRATEGY: none
