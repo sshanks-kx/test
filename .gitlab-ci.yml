@@ -3,12 +3,34 @@ default:
       - k8s-aws-tools
     interruptible: true
 
-build-job:
-  stage: build
-  variables:
-    CI_DEBUG_TRACE: "true"  
+stages:
+  - build
+  - deploy
+  
+merge-job:
   image: "registry.gitlab.com/kxdev/documentation/framework/mkdocs-build:0.3.8"
+  stage: build
+  rules: 
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
-    - echo "foo"
-    - ls -al
-    - mkdocs -V
+    - echo "merge-job"
+    
+build-job:
+  image: "registry.gitlab.com/kxdev/documentation/framework/mkdocs-build:0.3.8"
+  stage: build
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - when: always
+  script:
+    - echo "build-job"
+
+deploy-job:
+  image: "registry.gitlab.com/kxdev/documentation/framework/mkdocs-build:0.3.8"
+  stage: deploy
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - when: always
+  script:
+    - echo "deploy-job"
