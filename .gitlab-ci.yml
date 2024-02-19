@@ -27,7 +27,7 @@ build-job:
   script:
     - echo "build-job"
     - apt-get install -y zip wget
-    - wget https://code.kx.com/favicon.ico
+    - ./local.sh build
 
 deploy-job:
   image: "registry.gitlab.com/kxdev/documentation/framework/mkdocs-build:0.3.8"
