@@ -14,8 +14,8 @@ stages:
 merge-job:
   image: "registry.gitlab.com/kxdev/documentation/framework/mkdocs-build:0.3.8"
   stage: build
-  rules: 
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  rules:
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"'
   script:
     - echo "merge-job"
     
