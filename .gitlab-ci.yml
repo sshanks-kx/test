@@ -71,22 +71,18 @@ deploy-job:
     DRAFT_DIR: "/tmp/draft"
   script:
     - echo "deploy-job"
-    - env
-    - echo "$UNZIP_DIR"
     - ls -al
     - |
       ssh ci@code.kx.com << EOF
+        echo "Removing dir used to unzip i.e. ${UNZIP_DIR}"
         rm -rf ${UNZIP_DIR}
         mkdir -p ${UNZIP_DIR}
-        cd ${UNZIP_DIR}
-        pwd
       EOF
     - scp local.zip ci@code.kx.com:${UNZIP_DIR}/
     - |
       ssh ci@code.kx.com << EOF
         cd ${UNZIP_DIR}
-        pwd
-        ls -l
         unzip local.zip 
         ls -l
+        echo "New site now unzipped to ${UNZIP_DIR}/local"
       EOF
