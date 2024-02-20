@@ -34,8 +34,23 @@ build-job:
       - local.zip
     expire_in: 2 days
 
+.setup-ssh:
+  image:
+    name: "$MKDOCS_IMAGE_URL:$MKDOCS_IMAGE_VERSION"
+    entrypoint: [""]
+  before_script:
+    - |
+      # Write key into container
+      mkdir -p ~/.ssh
+      chmod 700 ~/.ssh
+      echo $CODEKXCOM_CI_KEY | base64 -d > ~/.ssh/id_rsa
+      chmod 400 ~/.ssh/id_rsa
+      eval $(ssh-agent)
+      ssh-add ~/.ssh/id_rsa
+      ssh-keyscan -t rsa -H code.kx.com >> ~/.ssh/known_hosts
+      chmod 644 ~/.ssh/known_hosts
+
 deploy-job:
-  image: "$MKDOCS_IMAGE_URL:$MKDOCS_IMAGE_VERSION"
   stage: deploy
   rules:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
@@ -46,6 +61,10 @@ deploy-job:
   dependencies:
     - build-job
   when: on_success
+  extends: .setup-ssh
+  variables:
+    DISPLAY: "1"
+    CI_DEBUG_TRACE: "false"
   script:
     - echo "deploy-job"
     - ls -al
