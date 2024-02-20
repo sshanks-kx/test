@@ -95,6 +95,10 @@ deploy-job:
         cd ${DRAFT_DIR}/q
         pwd
         ls -l ${DRAFT_DIR}/q
+        echo "other dir"
+        ls -l /var/www/draft
+        echo "other q dir"
+        ls -l /var/www/draft/q
       EOF
 
 release_job:
