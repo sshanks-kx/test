@@ -44,8 +44,7 @@ fi
 
 retval=$?
 if [ $retval -ne 0 ]; then
-    echo $retval
-    echo "mkdocs build failed" >&2
+    echo "mkdocs build failed - check warnings above, fix and try again" >&2
     exit $retval
 fi
 
