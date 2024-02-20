@@ -70,18 +70,13 @@ deploy-job:
     DRAFT_DIR: "/tmp/draft"
   script:
     - echo "deploy-job"
+    - echo $UNZIP_DIR
     - ls -al
     - |
       ssh ci@code.kx.com << EOF
-        rm -rf "${UNZIP_DIR}"
         mkdir -p "${UNZIP_DIR}"
-      EOF
-    - scp local.zip ci@code.kx.com:${UNZIP_DIR}/
-    - |
-      ssh ci@code.kx.com << EOF
         cd "${UNZIP_DIR}"
-        unzip local.zip
-        ls -l
+        pwd
       EOF
   variables:
     GIT_STRATEGY: none
