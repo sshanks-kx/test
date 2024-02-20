@@ -68,5 +68,6 @@ deploy-job:
   script:
     - echo "deploy-job"
     - ls -al
+    - ssh ci@code.kx.com "ls -al /tmp/"
   variables:
     GIT_STRATEGY: none
