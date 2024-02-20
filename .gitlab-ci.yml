@@ -81,8 +81,16 @@ deploy-job:
     - scp local.zip ci@code.kx.com:${UNZIP_DIR}/
     - |
       ssh ci@code.kx.com << EOF
+        echo "Unzip site to ${UNZIP_DIR}/local"
         cd ${UNZIP_DIR}
         unzip local.zip 
+        echo "Backing up old site in ${DRAFT_DIR}/q"
+        cd ${DRAFT_DIR}
         ls -l
-        echo "New site now unzipped to ${UNZIP_DIR}/local"
+        if [ -d q ]; then mv q q.bak;rm -rf q;echo "Old site in ${DRAFT_DIR}/q.bak"; fi
+        echo "Moving new site from ${UNZIP_DIR}/local to ${DRAFT_DIR}/q"
+        mv ${UNZIP_DIR}/local ${DRAFT_DIR}/q
+        cd ${DRAFT_DIR}/q
+        pwd
+        ls -l ${DRAFT_DIR}/q
       EOF
