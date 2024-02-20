@@ -6,9 +6,15 @@ default:
 stages:
   - build
   - deploy
+
+variables:
+  MKDOCS_IMAGE_VERSION: "0.3.8"
+  MKDOCS_IMAGE_URL: "registry.gitlab.com/kxdev/documentation/framework/mkdocs-build"
+  KUBERNETES_MEMORY_REQUEST: "512Mi"
+  KUBERNETES_MEMORY_LIMIT: "1024Mi"
   
 build-job:
-  image: "registry.gitlab.com/kxdev/documentation/framework/mkdocs-build:0.3.8"
+  image: "$MKDOCS_IMAGE_URL:$MKDOCS_IMAGE_VERSION"
   stage: build
   rules:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
@@ -17,9 +23,10 @@ build-job:
       when: never
     - when: always
   allow_failure: false
+  before_script:
+    - apt-get install -y zip wget
   script:
     - echo "build-job"
-    - apt-get install -y zip wget
     - ./local.sh build
   artifacts:
     name: "local"
@@ -28,7 +35,7 @@ build-job:
     expire_in: 2 days
 
 deploy-job:
-  image: "registry.gitlab.com/kxdev/documentation/framework/mkdocs-build:0.3.8"
+  image: "$MKDOCS_IMAGE_URL:$MKDOCS_IMAGE_VERSION"
   stage: deploy
   rules:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
