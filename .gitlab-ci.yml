@@ -46,6 +46,7 @@ deploy-job:
   needs:
     - job: build-job
       artifacts: true
+  when: on_success
   script:
     - echo "deploy-job"
     - ls -al
