@@ -65,6 +65,7 @@ deploy-job:
   variables:
     DISPLAY: "1"
     CI_DEBUG_TRACE: "false"
+    GIT_STRATEGY: none
     UNZIP_DIR: "/tmp/unzip"
     BACKUP_ROOT: "/tmp/backup"
     DRAFT_DIR: "/tmp/draft"
@@ -79,5 +80,3 @@ deploy-job:
         cd ${UNZIP_DIR}
         pwd
       EOF
-  variables:
-    GIT_STRATEGY: none
