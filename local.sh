@@ -32,7 +32,7 @@ cat mkdocs.yml | sed \
 
 docker_image="$(cat docker-image-name.txt):$(cat docker-image-version.txt)"
 work_dir="/docs"
-cmd="build --clean -f local.yml --site-dir $localdir"
+cmd="build --clean -s -f local.yml --site-dir $localdir"
 echo "### Building docs in $localdir/ using mkdocs"
 
 if [ $# -eq 0 ]; then
@@ -40,6 +40,13 @@ if [ $# -eq 0 ]; then
     docker run --rm -v $(pwd):$work_dir --workdir $work_dir $docker_image $cmd
 else
     mkdocs $cmd
+fi
+
+retval=$?
+if [ $retval -ne 0 ]; then
+    echo $retval
+    echo "mkdocs build failed" >&2
+    exit $retval
 fi
 
 echo "### Zipping $localdir directory"
