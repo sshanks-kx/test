@@ -70,12 +70,13 @@ deploy-job:
     DRAFT_DIR: "/tmp/draft"
   script:
     - echo "deploy-job"
-    - echo $UNZIP_DIR
+    - env
+    - echo "$UNZIP_DIR"
     - ls -al
     - |
       ssh ci@code.kx.com << EOF
-        mkdir -p "${UNZIP_DIR}"
-        cd "${UNZIP_DIR}"
+        mkdir -p ${UNZIP_DIR}
+        cd ${UNZIP_DIR}
         pwd
       EOF
   variables:
