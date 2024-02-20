@@ -113,7 +113,7 @@ nav:
     - Developer tools: devtools.md
     - Interfaces:
       - KX libraries: interfaces/index.md
-      - Bloomberg: interfaces/q-c-for-bloomberg.md
+      - Bloomberg: interfaces/q-client-for-bloomberg.md
       - C/C++:
         - Quick guide: interfaces/c-client-for-q.md
         - API reference: interfaces/capiref.md
