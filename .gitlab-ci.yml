@@ -110,6 +110,14 @@ deploy-draft-job:
         ls -l ${DRAFT_DIR}
         echo "######## Contents of draft q dir ${DRAFT_DIR}/q"
         ls -l ${DRAFT_DIR}/q
+        echo "######## HAVE A LOOK /var/www/draft"
+        ls -l /var/www/draft
+        echo "######## HAVE A LOOK /var/www/draft/q"
+        ls -l /var/www/draft/q
+        echo "######## HAVE A LOOK /var/www/"
+        ls -l /var/www
+        echo "######## HAVE A LOOK /var/www/q"
+        ls -l /var/www/q
       EOF
 
 release_job:
