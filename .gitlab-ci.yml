@@ -13,6 +13,8 @@ variables:
   MKDOCS_IMAGE_URL: "registry.gitlab.com/kxdev/documentation/framework/mkdocs-build"
   KUBERNETES_MEMORY_REQUEST: "512Mi"
   KUBERNETES_MEMORY_LIMIT: "1024Mi"
+  BACKUP_DIR: "/tmp/backup"
+  DRAFT_DIR: "/tmp/draft"
   LIVE_DIR: "/tmp/live"
   
 build-job:
@@ -69,8 +71,6 @@ deploy-draft-job:
     CI_DEBUG_TRACE: "false"
     GIT_STRATEGY: none
     UNZIP_DIR: "/tmp/unzip"
-    BACKUP_ROOT: "/tmp/backup"
-    DRAFT_DIR: "/tmp/draft"
   script:
     - echo "######## Available files in runner"
     - ls -al
@@ -83,14 +83,18 @@ deploy-draft-job:
     - scp local.zip ci@code.kx.com:${UNZIP_DIR}/
     - |
       ssh ci@code.kx.com << EOF
-        echo "######## Unzip site to ${UNZIP_DIR}/local"
+        echo "######## Unzip new site to ${UNZIP_DIR}/local"
         cd ${UNZIP_DIR}
         unzip local.zip 
-        echo "######## Backing up ${DRAFT_DIR}/q (previous draft site)"
+        echo "######## Backing up ${DRAFT_DIR}/q (previous draft site) to ${BACKUP_DIR}/q_draft.bak"
         if [ ! -d ${DRAFT_DIR} ]; then mkdir -p ${DRAFT_DIR}; fi
+        if [ ! -d ${BACKUP_DIR} ]; then mkdir -p ${BACKUP_DIR}; fi
         cd ${DRAFT_DIR}
         ls -l
-        if [ -d q ]; then mv q q_draft.bak;rm -rf q;echo "######## Old site in ${DRAFT_DIR}/q_draft.bak"; fi
+        if [ -d q ]; then mv q ${BACKUP_DIR}/q_draft.bak;rm -rf q;echo "######## Old backed up to ${BACKUP_DIR}/q_draft.bak"; fi
+        echo "######## Contents of backup dir ${BACKUP_DIR}"
+        cd ${BACKUP_DIR}
+        ls -l
         echo "######## Moving new site from ${UNZIP_DIR}/local to ${DRAFT_DIR}/q"
         mv ${UNZIP_DIR}/local ${DRAFT_DIR}/q
         echo "######## Contents of draft dir ${DRAFT_DIR}"
@@ -101,11 +105,6 @@ deploy-draft-job:
         cd ${DRAFT_DIR}/q
         pwd
         ls -l
-        echo "######## other dir"
-        ls -l /var/www/draft
-        echo "######## other q dir"
-        ls -l /var/www/draft/q
-        echo "######## live dir set to ${LIVE_DIR}"
       EOF
 
 release_job:
