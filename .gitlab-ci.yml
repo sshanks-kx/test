@@ -89,6 +89,8 @@ deploy-draft-job:
     - scp local.zip seedy@code.kx.com:${UNZIP_DIR}/
     - |
       ssh seedy@code.kx.com << EOF
+        pwd
+        ls -l
         if [ ! -d ${DRAFT_DIR} ]; then mkdir -p ${DRAFT_DIR}; fi
         echo "######## Current contents of ${DRAFT_DIR}"
         ls -l ${DRAFT_DIR}
