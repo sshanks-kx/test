@@ -13,9 +13,9 @@ variables:
   MKDOCS_IMAGE_URL: "registry.gitlab.com/kxdev/documentation/framework/mkdocs-build"
   KUBERNETES_MEMORY_REQUEST: "512Mi"
   KUBERNETES_MEMORY_LIMIT: "1024Mi"
-  BACKUP_DIR: "/tmp/backup"
-  DRAFT_DIR: "/tmp/draft"
-  LIVE_DIR: "/tmp/live"
+  BACKUP_DIR: "/tmp/seedy/backup"
+  DRAFT_DIR: "/tmp/seedy/draft"
+  LIVE_DIR: "/tmp/seedy/live"
   
 build-job:
   image: "$MKDOCS_IMAGE_URL:$MKDOCS_IMAGE_VERSION"
@@ -47,7 +47,7 @@ build-job:
       # Write key into container
       mkdir -p ~/.ssh
       chmod 700 ~/.ssh
-      echo $CODEKXCOM_CI_KEY | base64 -d > ~/.ssh/id_rsa
+      echo $SEEDY_B64_KEY | base64 -d > ~/.ssh/id_rsa
       chmod 400 ~/.ssh/id_rsa
       eval $(ssh-agent)
       ssh-add ~/.ssh/id_rsa
@@ -70,7 +70,7 @@ deploy-draft-job:
     DISPLAY: "1"
     CI_DEBUG_TRACE: "false"
     GIT_STRATEGY: none
-    UNZIP_DIR: "/tmp/unzip"
+    UNZIP_DIR: "/tmp/seedy/unzip"
   script:
     - echo "######## Available files in runner"
     - ls -al
