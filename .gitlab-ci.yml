@@ -13,6 +13,7 @@ variables:
   MKDOCS_IMAGE_URL: "registry.gitlab.com/kxdev/documentation/framework/mkdocs-build"
   KUBERNETES_MEMORY_REQUEST: "512Mi"
   KUBERNETES_MEMORY_LIMIT: "1024Mi"
+  LIVE_DIR: "/tmp/live"
   
 build-job:
   image: "$MKDOCS_IMAGE_URL:$MKDOCS_IMAGE_VERSION"
@@ -27,7 +28,7 @@ build-job:
   before_script:
     - apt-get install -y zip wget
   script:
-    - echo "build-job"
+    - echo "######## build-job"
     - ./local.sh build
   artifacts:
     name: "local"
@@ -51,7 +52,7 @@ build-job:
       ssh-keyscan -t rsa -H code.kx.com >> ~/.ssh/known_hosts
       chmod 644 ~/.ssh/known_hosts
 
-deploy-job:
+deploy-draft-job:
   stage: deploy
   rules:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
@@ -71,34 +72,40 @@ deploy-job:
     BACKUP_ROOT: "/tmp/backup"
     DRAFT_DIR: "/tmp/draft"
   script:
-    - echo "deploy-job"
+    - echo "######## Available files in runner"
     - ls -al
     - |
       ssh ci@code.kx.com << EOF
-        echo "Removing dir used to unzip i.e. ${UNZIP_DIR}"
+        echo "######## Removing dir used to unzip i.e. ${UNZIP_DIR}"
         rm -rf ${UNZIP_DIR}
         mkdir -p ${UNZIP_DIR}
       EOF
     - scp local.zip ci@code.kx.com:${UNZIP_DIR}/
     - |
       ssh ci@code.kx.com << EOF
-        echo "Unzip site to ${UNZIP_DIR}/local"
+        echo "######## Unzip site to ${UNZIP_DIR}/local"
         cd ${UNZIP_DIR}
         unzip local.zip 
-        echo "Backing up old site in ${DRAFT_DIR}/q"
+        echo "######## Backing up ${DRAFT_DIR}/q (previous draft site)"
         if [ ! -d ${DRAFT_DIR} ]; then mkdir -p ${DRAFT_DIR}; fi
         cd ${DRAFT_DIR}
         ls -l
-        if [ -d q ]; then mv q q.bak;rm -rf q;echo "Old site in ${DRAFT_DIR}/q.bak"; fi
-        echo "Moving new site from ${UNZIP_DIR}/local to ${DRAFT_DIR}/q"
+        if [ -d q ]; then mv q q_draft.bak;rm -rf q;echo "######## Old site in ${DRAFT_DIR}/q_draft.bak"; fi
+        echo "######## Moving new site from ${UNZIP_DIR}/local to ${DRAFT_DIR}/q"
         mv ${UNZIP_DIR}/local ${DRAFT_DIR}/q
+        echo "######## Contents of draft dir ${DRAFT_DIR}"
+        cd ${DRAFT_DIR}
+        pwd
+        ls -l
+        echo "######## Contents of draft q dir ${DRAFT_DIR}/q"
         cd ${DRAFT_DIR}/q
         pwd
-        ls -l ${DRAFT_DIR}/q
-        echo "other dir"
+        ls -l
+        echo "######## other dir"
         ls -l /var/www/draft
-        echo "other q dir"
+        echo "######## other q dir"
         ls -l /var/www/draft/q
+        echo "######## live dir set to ${LIVE_DIR}"
       EOF
 
 release_job:
@@ -107,5 +114,5 @@ release_job:
   rules:
     - if: $CI_COMMIT_TAG
   script:
-    - echo "release_job"
+    - echo "######## release_job"
 
