@@ -27,7 +27,6 @@ build-job:
     - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
       when: never
     - when: always
-  allow_failure: false
   before_script:
     - apt-get install -y zip wget
   script:
@@ -76,7 +75,6 @@ deploy-draft-job:
   extends: .setup-ssh
   variables:
     DISPLAY: "1"
-    CI_DEBUG_TRACE: "false"
     GIT_STRATEGY: none
     UNZIP_DIR: "/tmp/seedy/unzip"
   script:
@@ -115,12 +113,12 @@ deploy-draft-job:
 release_job:
   image: "$MKDOCS_IMAGE_URL:$MKDOCS_IMAGE_VERSION"
   stage: release
+  interruptible: false
   rules:
     - if: $CI_COMMIT_TAG
   extends: .setup-ssh
   variables:
     DISPLAY: "1"
-    CI_DEBUG_TRACE: "false"
     GIT_STRATEGY: none
   script:
     - echo "######## release_job"
