@@ -82,14 +82,14 @@ deploy-draft-job:
     - echo "######## Available files in runner"
     - ls -al
     - |
-      ssh ci@code.kx.com << EOF
+      ssh seedy@code.kx.com << EOF
         echo "######## Removing dir used to unzip i.e. ${UNZIP_DIR}"
         rm -rf ${UNZIP_DIR}
         mkdir -p ${UNZIP_DIR}
       EOF
-    - scp local.zip ci@code.kx.com:${UNZIP_DIR}/
+    - scp local.zip seedy@code.kx.com:${UNZIP_DIR}/
     - |
-      ssh ci@code.kx.com << EOF
+      ssh seedy@code.kx.com << EOF
         echo "######## Unzip new site to ${UNZIP_DIR}/local"
         cd ${UNZIP_DIR}
         unzip local.zip 
