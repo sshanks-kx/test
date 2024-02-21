@@ -13,7 +13,8 @@ variables:
   MKDOCS_IMAGE_URL: "registry.gitlab.com/kxdev/documentation/framework/mkdocs-build"
   KUBERNETES_MEMORY_REQUEST: "512Mi"
   KUBERNETES_MEMORY_LIMIT: "1024Mi"
-  BACKUP_DIR: "/tmp/seedy/backup"
+  BACKUP_DRAFT_DIR: "/tmp/seedy/backup/q_draft.bak"
+  BACKUP_LIVE_DIR: "/tmp/seedy/backup/q_live.bak"
   DRAFT_DIR: "/tmp/seedy/draft"
   LIVE_DIR: "/tmp/seedy/live"
   
@@ -90,28 +91,25 @@ deploy-draft-job:
     - scp local.zip seedy@code.kx.com:${UNZIP_DIR}/
     - |
       ssh seedy@code.kx.com << EOF
+        if [ ! -d ${DRAFT_DIR} ]; then mkdir -p ${DRAFT_DIR}; fi
+        echo "######## Current contents of ${DRAFT_DIR}"
+        ls -l ${DRAFT_DIR}
         echo "######## Unzip new site to ${UNZIP_DIR}/local"
         cd ${UNZIP_DIR}
         unzip local.zip 
-        echo "######## Backing up ${DRAFT_DIR}/q (previous draft site) to ${BACKUP_DIR}/q_draft.bak"
-        if [ ! -d ${DRAFT_DIR} ]; then mkdir -p ${DRAFT_DIR}; fi
-        if [ ! -d ${BACKUP_DIR} ]; then mkdir -p ${BACKUP_DIR}; fi
+        echo "######## Backing up ${DRAFT_DIR}/q (previous draft site) to ${BACKUP_DRAFT_DIR}"
+        rm -rf ${BACKUP_DRAFT_DIR}
+        mkdir -p ${BACKUP_DRAFT_DIR}
         cd ${DRAFT_DIR}
-        ls -l
-        if [ -d q ]; then mv q ${BACKUP_DIR}/q_draft.bak;rm -rf q;echo "######## Old backed up to ${BACKUP_DIR}/q_draft.bak"; fi
-        echo "######## Contents of backup dir ${BACKUP_DIR}"
-        cd ${BACKUP_DIR}
-        ls -l
-        echo "######## Moving new site from ${UNZIP_DIR}/local to ${DRAFT_DIR}/q"
+        if [ -d q ]; then mv q ${BACKUP_DRAFT_DIR};echo "######## Old draft site backed up to ${BACKUP_DRAFT_DIR}"; fi
+        echo "######## Contents of backup dir ${BACKUP_DRAFT_DIR}"
+        ls -l ${BACKUP_DRAFT_DIR}
+        echo "######## Moving new draft site from ${UNZIP_DIR}/local to ${DRAFT_DIR}/q"
         mv ${UNZIP_DIR}/local ${DRAFT_DIR}/q
         echo "######## Contents of draft dir ${DRAFT_DIR}"
-        cd ${DRAFT_DIR}
-        pwd
-        ls -l
+        ls -l ${DRAFT_DIR}
         echo "######## Contents of draft q dir ${DRAFT_DIR}/q"
-        cd ${DRAFT_DIR}/q
-        pwd
-        ls -l
+        ls -l ${DRAFT_DIR}/q
       EOF
 
 release_job:
@@ -120,6 +118,28 @@ release_job:
   rules:
     - if: $CI_COMMIT_TAG
   extends: .setup-ssh
+  variables:
+    DISPLAY: "1"
+    CI_DEBUG_TRACE: "false"
+    GIT_STRATEGY: none
   script:
     - echo "######## release_job"
-
+    - |
+      ssh seedy@code.kx.com << EOF
+        if [ ! -d ${LIVE_DIR} ]; then mkdir -p ${LIVE_DIR}; fi
+        echo "######## Current contents of ${LIVE_DIR}"
+        ls -l ${LIVE_DIR}
+        echo "######## Backing up ${LIVE_DIR}/q (previous live site) to ${BACKUP_LIVE_DIR}"
+        rm -rf ${BACKUP_LIVE_DIR}
+        mkdir -p ${BACKUP_LIVE_DIR}
+        cd ${LIVE_DIR}
+        if [ -d q ]; then mv q ${BACKUP_LIVE_DIR};echo "######## Old live site backed up to ${BACKUP_LIVE_DIR}"; fi
+        echo "######## Contents of backup dir ${BACKUP_LIVE_DIR}"
+        ls -l ${BACKUP_LIVE_DIR}
+        echo "######## Copy new site from ${DRAFT_DIR}/q to ${LIVE_DIR}/q"
+        cp -r ${DRAFT_DIR}/q ${LIVE_DIR}/q
+        echo "######## Contents of live dir ${LIVE_DIR}"
+        ls -l ${LIVE_DIR}
+        echo "######## Contents of live dir ${LIVE_DIR}/q"
+        ls -l ${LIVE_DIR}/q
+      EOF
